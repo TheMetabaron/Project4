@@ -38,7 +38,6 @@ public class AirlineServlet extends HttpServlet {
       String lastPart = uri.substring(uri.lastIndexOf('=') + 1, uri.length());
 
       if(lastPart.contains("&src=")){
-          //TODO: Implement write value src and dest url to get a specific flight
           String src = getParameter( "src", request );
           String dest = getParameter( "dest", request );
           writeValue(src, dest, response);
@@ -159,7 +158,7 @@ public class AirlineServlet extends HttpServlet {
       for (Flight f : flights) {
           if (source.equalsIgnoreCase(f.getSource()) && dest.equalsIgnoreCase(f.getSource())) {
 
-              //TODO
+              //TODO: needs to be printwriter???
               //pw.println(Messages.formatKeyValuePair(key, value));
               System.out.println("Flight Number:       " + f.getNumber());
               System.out.println("Departure Airport:   " + AirportNames.getName(f.getSource()));
