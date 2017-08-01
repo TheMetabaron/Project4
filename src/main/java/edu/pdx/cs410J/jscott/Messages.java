@@ -2,6 +2,8 @@ package edu.pdx.cs410J.jscott;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -90,5 +92,11 @@ public class Messages {
         }
 
         return map;
+    }
+
+    public static Collection parseFlights(String content){
+        ArrayList <Flight> flights = new ArrayList<>();
+        //TODO: parse collection of flights from return string
+        return flights;
     }
 }

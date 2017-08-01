@@ -94,6 +94,7 @@ public class Project4 {
         //Check command line arguments
         checkCommandLineArguments(commands);
 
+        //TODO: DO I need to create a date object here?
         //parse date objects
         Date departureDate = null;
         Date arrivalDate = null;
@@ -137,7 +138,7 @@ public class Project4 {
             try {
                 if (commands[3] == null) {
                     // Print all pretty print all matching flights
-                    //TODO: Implement client.getAllFlights? for Search functionaility
+                    //TODO: Implement client.getAllFlights?  and messages.parseFlights for Search functionality
                     /*
                     Map<String, String> keysAndValues = client.getAllKeysAndValues();
                     StringWriter sw = new StringWriter();
@@ -152,6 +153,7 @@ public class Project4 {
                 } else{
                     // Post the src/departTimeString pair
                     //TODO: Implement client.addFlight
+                    client.addFlight(commands[0]);
                     client.addKeyValuePair(src, departTimeString);
                     message = Messages.mappedKeyValue(src, departTimeString);
                 }
