@@ -94,9 +94,13 @@ public class Messages {
         return map;
     }
 
-    public static Collection parseFlights(String content){
+    public static Airline parseFlights(String content){
         ArrayList <Flight> flights = new ArrayList<>();
+        Airline airline;
         //TODO: parse collection of flights from return string
-        return flights;
+        //DEBUG
+        System.out.println("DEBUG: The response.getContent() funciton returns this string: " + content);
+        airline = new Airline();
+        return airline;
     }
 }

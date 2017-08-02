@@ -27,6 +27,8 @@ public class Airline extends AbstractAirline{
 
     //Default Constructor
     public Airline(){
+        name = "";
+        flightList = new ArrayList<>();
     }
 
     /**

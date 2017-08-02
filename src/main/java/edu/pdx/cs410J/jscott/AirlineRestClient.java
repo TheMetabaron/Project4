@@ -31,22 +31,24 @@ public class AirlineRestClient extends HttpRequestHelper
     {
         this.url = String.format( "http://%s:%d/%s/%s", hostName, port, WEB_APP, SERVLET );
     }
-/*
+
     /**
+     *
      * Returns all keys and values from the server
+     */
 
     public Map<String, String> getAllKeysAndValues() throws IOException {
       Response response = get(this.url);
       return Messages.parseKeyValueMap(response.getContent());
     }
-*/
+
 
     /**
      * Returns all flights from the server. Used by Project4 to search for matching flights
      * @return a array list collection of flights
      * @throws IOException if unable to get url
      */
-    public Collection getAllFlights() throws IOException{
+    public Airline getAllFlights() throws IOException{
         Response response = get(this.url);
         return Messages.parseFlights(response.getContent());
     }
@@ -68,8 +70,8 @@ public class AirlineRestClient extends HttpRequestHelper
 
     public void addFlight(String [] flightInfo) throws IOException{
         Response response = postToMyURL("airline", flightInfo[0], "flightNumber", flightInfo[1], "src", flightInfo[2],
-                                "departTime1", flightInfo[3], "departTime2", flightInfo[4], "departTime3" + flightInfo[5],
-                                "dest", flightInfo[6], "arriveTime1", flightInfo[7], "arriveTime2", flightInfo[8], "arriveTime3", flightInfo[9]);
+                                "departTime", flightInfo[3] + " " + flightInfo[4] + " " + flightInfo[5],
+                                "dest", flightInfo[6], "arriveTime", flightInfo[7] + " " + flightInfo[8] + " " + flightInfo[9]);
         throwExceptionIfNotOkayHttpStatus(response);
     }
 

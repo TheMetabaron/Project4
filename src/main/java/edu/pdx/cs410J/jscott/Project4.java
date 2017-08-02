@@ -1,11 +1,14 @@
 package edu.pdx.cs410J.jscott;
 
+import edu.pdx.cs410J.AbstractFlight;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
@@ -83,6 +86,7 @@ public class Project4 {
             System.exit(1);
         }
 
+        //TODO: DO I NEED TO CONVERT TO INT HERE?
         //Convert FlightValue to int
         int flightValue = 0;
         try {
@@ -132,20 +136,24 @@ public class Project4 {
                 usage("Port \"" + flags[5] + "\" must be an integer");
                 return;
             }
-            AirlineRestClient client = new AirlineRestClient(name, port);
+            AirlineRestClient client = new AirlineRestClient(flags[3], port);
 
             String message;
+            Airline airlineToPrintFlights;
             try {
                 if (commands[3] == null) {
-                    // Print all pretty print all matching flights
+                    // pretty print all matching flights
                     //TODO: Implement client.getAllFlights?  and messages.parseFlights for Search functionality
                     /*
                     Map<String, String> keysAndValues = client.getAllKeysAndValues();
                     StringWriter sw = new StringWriter();
                     Messages.formatKeyValueMap(new PrintWriter(sw, true), keysAndValues);
                     message = sw.toString();
+                    */
+                    airlineToPrintFlights = new Airline(client.getAllFlights());
 
 
+/*
                 } else if (departTimeString == null) {
                     // Print all values of src
                     message = Messages.formatKeyValuePair(src, client.getValue(src));
@@ -153,9 +161,9 @@ public class Project4 {
                 } else{
                     // Post the src/departTimeString pair
                     //TODO: Implement client.addFlight
-                    client.addFlight(commands[0]);
-                    client.addKeyValuePair(src, departTimeString);
-                    message = Messages.mappedKeyValue(src, departTimeString);
+                    client.addFlight(commands);
+                    //client.addKeyValuePair(src, departTimeString);
+                    //message = Messages.mappedKeyValue(src, departTimeString);
                 }
 
             }   catch (IOException ex) {

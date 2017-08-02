@@ -37,14 +37,30 @@ public class AirlineServlet extends HttpServlet {
       String uri = request.getRequestURI();
       String lastPart = uri.substring(uri.lastIndexOf('=') + 1, uri.length());
 
-      if(lastPart.contains("&src=")){
+      //check for matching airline name
+      String airlineName = getParameter("airline", request);
+      if(airlineName == null){
+          missingRequiredParameter(response, "airline");
+          return;
+      }
+      //send error if airline names don't match
+      if(!airlineName.equalsIgnoreCase(airline.getName())){
+          response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Airline name does not match Airline of record");
+          return;
+      }
+
+      //TODO: Get matching flights
+      if(uri.contains("&src=")){
           String src = getParameter( "src", request );
           String dest = getParameter( "dest", request );
-          writeValue(src, dest, response);
+          //writeValue(src, dest, response);  ??????
       }
+      // else get all flights
       else {
           writeAllMappings(response);
       }
+
+      response.setStatus( HttpServletResponse.SC_OK);
   }
 
   /**
@@ -57,9 +73,9 @@ public class AirlineServlet extends HttpServlet {
   {
       response.setContentType( "text/plain" );
 
-      String airlineName = getParameter( "name", request );
+      String airlineName = getParameter( "airline", request );
       if (airlineName == null) {
-          missingRequiredParameter(response, "name");
+          missingRequiredParameter(response, "airline");
           return;
       }
       String flightNumber = (getParameter( "flightNumber", request ));
@@ -88,6 +104,7 @@ public class AirlineServlet extends HttpServlet {
           missingRequiredParameter( response, "arriveTime" );
           return;
       }
+      //TODO: is this the wrong format - use DateTimeParser?? - this seems to be working?
       DateFormat format = new SimpleDateFormat();
       Date departureDate = new Date();
       Date arrivalDate = new Date();
@@ -95,12 +112,18 @@ public class AirlineServlet extends HttpServlet {
           departureDate = format.parse(departTime);
           arrivalDate = format.parse(arriveTime);
       } catch(ParseException ex){
+          PrintWriter pw = response.getWriter();
+          pw.println("Error: Parse Exception while parsing string to date in Airline Servlet doPost Method" );
+          pw.flush();
           System.err.println("Error: Parse Exception while parsing string to date in Airline Servlet doPost Method" );
-          System.exit(1);
+          //System.exit(1);
       }
 
       //Does Airline Exist?
-      if(airline.getName().equalsIgnoreCase(airlineName)){
+      if(airline == null) {
+          airline = new Airline(airlineName);
+      }
+       else if(!(airline.getName().equalsIgnoreCase(airlineName))){
           airline = new Airline(airlineName);
       }
       Flight flight = new Flight(airlineName, flightNum, srcCode, departureDate, destCode, arrivalDate);
@@ -158,7 +181,7 @@ public class AirlineServlet extends HttpServlet {
       for (Flight f : flights) {
           if (source.equalsIgnoreCase(f.getSource()) && dest.equalsIgnoreCase(f.getSource())) {
 
-              //TODO: needs to be printwriter???
+              //TODO: needs to be a response.printwriter() ???
               //pw.println(Messages.formatKeyValuePair(key, value));
               System.out.println("Flight Number:       " + f.getNumber());
               System.out.println("Departure Airport:   " + AirportNames.getName(f.getSource()));
@@ -182,12 +205,24 @@ public class AirlineServlet extends HttpServlet {
    * {@link Messages#formatKeyValuePair(String, String)}
    */
   private void writeAllMappings( HttpServletResponse response ) throws IOException {
-      //PrintWriter pw = response.getWriter();
-      //Messages.formatKeyValueMap(pw, data);
-      PrettyPrinter prettyPrinter = new PrettyPrinter("-");
-      prettyPrinter.dump(airline);
-      //pw.flush();
-
+      PrintWriter pw = response.getWriter();
+      StringBuilder sb = new StringBuilder();
+      sb.append("All Flights for " + airline.getName() +"\n");
+      ArrayList<Flight> flights = new ArrayList<>(airline.getFlights());
+      long duration = 0;
+      for(Flight f: flights){
+          sb.append("Flight Number:       ").append(f.getNumber());
+          sb.append("\nDeparture Airport:   ").append(AirportNames.getName(f.getSource()));
+          sb.append("\nDeparture Date:      ").append(f.getDeparture().toString());
+          sb.append("\nDestination Airport: ").append(AirportNames.getName(f.getDestination()));
+          sb.append("\nArrival Date:        ").append(f.getArrival().toString());
+          duration = f.getArrival().getTime() - f.getDeparture().getTime();
+          duration = duration /1000/60;
+          sb.append("\nFlight Duration:     ").append(duration).append(" minutes");
+          sb.append("\n-------------------------------------------------");
+      }
+      pw.println(sb);
+      pw.flush();
       response.setStatus( HttpServletResponse.SC_OK );
   }
 

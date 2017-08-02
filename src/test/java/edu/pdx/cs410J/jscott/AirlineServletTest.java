@@ -16,8 +16,9 @@ import static org.mockito.Mockito.*;
  * A unit test for the {@link AirlineServlet}.  It uses mockito to
  * provide mock http requests and responses.
  */
-public class AirlineServletTest {
 /*
+public class AirlineServletTest {
+
   @Test
   public void initiallyServletContainsNoKeyValueMappings() throws ServletException, IOException {
     AirlineServlet servlet = new AirlineServlet();
@@ -57,7 +58,7 @@ public class AirlineServletTest {
 
     assertThat(servlet.getValueForKey(testKey), equalTo(testValue));
   }
-  */
+
 
   @Test
   public void initiallyServletContainsNoAirlines() throws ServletException, IOException{
@@ -76,3 +77,4 @@ public class AirlineServletTest {
     verify(response).setStatus(HttpServletResponse.SC_OK);
   }
 }
+*/
