@@ -4,13 +4,9 @@ import edu.pdx.cs410J.AbstractFlight;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * The main class that parses the command line and communicates with the
@@ -18,15 +14,7 @@ import java.util.Map;
  */
 public class Project4 {
 
-    public static final String MISSING_ARGS = "Missing command line arguments";
-
     public static void main(String... args) {
-        String name = null;
-        String flightNumber = null;
-        String src = null;
-        String departTimeString = null;
-        String dest = null;
-        String arrivalTimeString = null;
 
         String[] commands = new String[10];
         String[] flags = new String[7];
@@ -62,7 +50,7 @@ public class Project4 {
                         System.err.println("Error: Expects argument after -port");
                         System.exit(1);
                     }
-                } else if ((args[i]).equalsIgnoreCase("-search")){
+                } else if ((args[j]).equalsIgnoreCase("-search")){
                     flags[6] = args[j];
                 }
                 else {
@@ -81,38 +69,9 @@ public class Project4 {
         }
         //if -search only name src and dest are required
         if ((flags[6] == null && i < 10) || (i < 3)){
-            System.err.println("Error 666: Missing command line arguments. Expected: name, flightNumber, src, departTime, dest, arriveTime");
-            System.err.println("i = " + i);
+            System.err.println("Error: Missing command line arguments. Expected: name, flightNumber, src, departTime, dest, arriveTime");
             System.exit(1);
         }
-
-        //TODO: DO I NEED TO CONVERT TO INT HERE?
-        //Convert FlightValue to int
-        int flightValue = 0;
-        try {
-            flightValue = Integer.parseInt(commands[1]);
-        } catch (NumberFormatException ex) {
-            System.err.println("Second argument must be an integer: " + commands[1]);
-            System.exit(1);
-        }
-        //Check command line arguments
-        checkCommandLineArguments(commands);
-
-        //TODO: DO I need to create a date object here?
-        //parse date objects
-        Date departureDate = null;
-        Date arrivalDate = null;
-        int f = DateFormat.SHORT;
-        DateFormat df = DateFormat.getDateTimeInstance(f, f);
-        try {
-            departureDate = df.parse(commands[3] + " " + commands[4] + " " + commands[5]);
-            arrivalDate = df.parse(commands[7] + " " + commands[8] + " " + commands[9]);
-        } catch (ParseException e) {
-            System.err.println("Error: Unable to parse date and times which must be in the format dd/mm/yyyy hh:mm am/pm");
-            System.exit(1);
-        }
-        //------------------------------------
-
 
         //if -port parse port number, error check and call AirlineRestClient
         if(flags[2] != null && flags [4] == null){
@@ -137,41 +96,67 @@ public class Project4 {
                 return;
             }
             AirlineRestClient client = new AirlineRestClient(flags[3], port);
+            String responseReturnString;
 
-            String message;
-            Airline airlineToPrintFlights;
             try {
-                if (commands[3] == null) {
-                    // pretty print all matching flights
-                    //TODO: Implement client.getAllFlights?  and messages.parseFlights for Search functionality
-                    /*
-                    Map<String, String> keysAndValues = client.getAllKeysAndValues();
-                    StringWriter sw = new StringWriter();
-                    Messages.formatKeyValueMap(new PrintWriter(sw, true), keysAndValues);
-                    message = sw.toString();
-                    */
-                    airlineToPrintFlights = new Airline(client.getAllFlights());
-
-
-/*
-                } else if (departTimeString == null) {
-                    // Print all values of src
-                    message = Messages.formatKeyValuePair(src, client.getValue(src));
-                    */
+                //If -search flag included
+                if (flags[6] != null) {
+                    // search for flights for a specific src/dest
+                    if(commands[3] == null){
+                        // Post the src/departTimeString pair
+                        try {
+                            responseReturnString = client.searchForSrcDest(commands[0], commands[1], commands[2]);
+                            System.out.println(responseReturnString);
+                        } catch (RuntimeException ex){
+                            System.err.println(ex.getMessage());
+                            System.exit(1);
+                        }
+                    }
+                    //if src and dest not specified issue error
+                    else{
+                        System.err.println("Error: To many arguments, -search command must include name, src and dest only");
+                        System.exit(1);
+                    }
+                    //If no -search flag then add flight
                 } else{
-                    // Post the src/departTimeString pair
-                    //TODO: Implement client.addFlight
+                    //Check command line arguments
+                    checkCommandLineArguments(commands);
+                    //Convert FlightValue to int
+                    int flightValue = 0;
+                    try {
+                        flightValue = Integer.parseInt(commands[1]);
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Second argument must be an integer: " + commands[1]);
+                        System.exit(1);
+                    }
+                    //parse date objects
+                    Date departureDate = null;
+                    Date arrivalDate = null;
+                    int f = DateFormat.SHORT;
+                    DateFormat df = DateFormat.getDateTimeInstance(f, f);
+                    try {
+                        departureDate = df.parse(commands[3] + " " + commands[4] + " " + commands[5]);
+                        arrivalDate = df.parse(commands[7] + " " + commands[8] + " " + commands[9]);
+                    } catch (ParseException e) {
+                        System.err.println("Error: Unable to parse date and times which must be in the format dd/mm/yyyy hh:mm am/pm");
+                        System.exit(1);
+                    }
                     client.addFlight(commands);
-                    //client.addKeyValuePair(src, departTimeString);
-                    //message = Messages.mappedKeyValue(src, departTimeString);
+
+                    //-print flag prints description of the new flight
+                    if(flags[0] != null) {
+                        //make flight and print
+                        Flight flight = new Flight(commands[0], flightValue, commands[2], departureDate, commands[6], arrivalDate);
+                        if (flags[0] != null) {
+                            System.out.println(flight.toString());
+                        }
+                    }
                 }
 
             }   catch (IOException ex) {
-                  error("While contacting server: " + ex);
+                  error("While contacting server: " + ex.getMessage());
                   return;
             }
-
-            //System.out.println(message);
         }
 
         System.exit(0);
@@ -206,41 +191,42 @@ public class Project4 {
 
         System.exit(1);
     }
-
-//TODO: Update README
+    
 
     /**
      * This method prints an explanation of the program functionality.
      */
     private static void printReadMe() {
-        System.out.println("***********************************************\n" +
-                "* README FOR PROJECT THREE: AIRLINE APPLICATION *\n" +
-                "***********************************************\n");
+        System.out.println("***********************************************************\n" +
+                "* README FOR PROJECT FOUR: A REST-ful AIRLINE WEB SERVICE *\n" +
+                "***********************************************************\n");
         System.out.println("This program was written by Scott Jones for CS510J\n");
         System.out.println("The purpose of this program is to simulate an Airline booking application.\n" +
                 "The current functionality includes the ability to enter the information for\n" +
                 "a flight at the command line and that information will be entered into the\n" +
                 "fundamental Airline and Flight objects.\n" +
-                "Added for project 2 is the printFile flag that reads and prints to file\n" +
-                "Added for project 3 is the pretty flag that prints an Airline's flights to a text file or standard out.\n" +
-                "The list of Flights is now ordered based on Departure airport and Departure time.\n");
+                "In this project you will extend your airline application to support an airline " +
+                "server that provides REST-ful web services to an airline client.\n" +
+                "The list of Flights is ordered based on Departure airport and Departure time.\n");
         System.out.println("USAGE\n\n" +
-                "java edu.pdx.cs410J.jscott.Project3 [options] <args>\n\n" +
-                "Command Line Arguments:\n" +
+                "java -jar target/airline.jar [options] <args>\n\n" +
                 "This program expects the following arguments in the order listed\n" +
                 "name\t\t\tThe name of the airline\n" +
-                "flightNumber\tThe flight number\n" +
-                "src\t\t\t\tThree letter code of the departure airport\n" +
-                "departTime\t\tTThe departure date and time\n" +
+                "flightNumber\t\tThe flight number\n" +
+                "src\t\t\tThree letter code of the departure airport\n" +
+                "departTime\t\tTThe departure date and time (see note)\n" +
                 "dest\t\t\tThree letter code of the arrival airport\n" +
-                "arriveTime\t\tArrival date and time (24 hour time see note)\n");
+                "arriveTime\t\tArrival date and time (see note)\n");
         System.out.println("note: Date and time should be in the format: mm/dd/yyyy hh:mm am/pm");
         System.out.println("\nOptions:\n" +
-                "-textFile file\t\tWhere to read/write the airline info\n" +
-                "-print\t\t\t\tPrints a description of the new flight\n" +
-                "-README\t\t\t\tPrints a README for this project and exits\n" +
-                "-pretty file\t\tPretty print the airline's lights to\n" +
-                "\t\t\t\t\ta text file or standard out (file -)");
+                "-host hostname\t\tHost computer on which the server runs\n" +
+                "-port port \t\tPort on which the server is listening\n" +
+                "-print\t\t\tPrints a description of the new flight\n" +
+                "-README\t\t\tPrints a README for this project and exits\n" +
+                "-search\t\t\tSearch for flights\n" +
+                "If the -search option is provided, only the name, src and dest \n" +
+                "are required. The program will print  out all of the direct flights " +
+                "that originate at the src airport and terminate at the dest airport.\n");
         System.exit(4);
     }
 

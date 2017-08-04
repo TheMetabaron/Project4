@@ -50,6 +50,7 @@ public class AirlineRestClient extends HttpRequestHelper
      */
     public Airline getAllFlights() throws IOException{
         Response response = get(this.url);
+        //TODO: Implement -create an airline with returned flight info
         return Messages.parseFlights(response.getContent());
     }
 
@@ -63,13 +64,14 @@ public class AirlineRestClient extends HttpRequestHelper
       return Messages.parseKeyValuePair(content).getValue();
     }
 
-    public void addKeyValuePair(String key, String value) throws IOException {
-      Response response = postToMyURL("key", key, "value", value);
-      throwExceptionIfNotOkayHttpStatus(response);
+    public String searchForSrcDest(String name, String src, String dest) throws IOException {
+        Response response = get(this.url, "name", name, "src", src, "dest", dest);
+        throwExceptionIfNotOkayHttpStatus(response);
+        return response.getContent();
     }
 
     public void addFlight(String [] flightInfo) throws IOException{
-        Response response = postToMyURL("airline", flightInfo[0], "flightNumber", flightInfo[1], "src", flightInfo[2],
+        Response response = postToMyURL("name", flightInfo[0], "flightNumber", flightInfo[1], "src", flightInfo[2],
                                 "departTime", flightInfo[3] + " " + flightInfo[4] + " " + flightInfo[5],
                                 "dest", flightInfo[6], "arriveTime", flightInfo[7] + " " + flightInfo[8] + " " + flightInfo[9]);
         throwExceptionIfNotOkayHttpStatus(response);
@@ -88,7 +90,7 @@ public class AirlineRestClient extends HttpRequestHelper
     private Response throwExceptionIfNotOkayHttpStatus(Response response) {
       int code = response.getCode();
       if (code != HTTP_OK) {
-        throw new AppointmentBookRestException(code);
+        throw new RuntimeException(response.getContent());
       }
       return response;
     }

@@ -56,9 +56,9 @@ public class PrettyPrinter implements AirlineDumper {
                 duration = 0;
                 System.out.println("Flight Number:       " + f.getNumber());
                 System.out.println("Departure Airport:   " + AirportNames.getName(f.getSource()));
-                System.out.println("Departure Date:      " + f.getDeparture().toString());
+                System.out.println("Departure Date:      " + f.getDepartureString());
                 System.out.println("Destination Airport: " + AirportNames.getName(f.getDestination()));
-                System.out.println("Arrival Date:        " + f.getArrival().toString());
+                System.out.println("Arrival Date:        " + f.getArrivalString());
                 duration = f.getArrival().getTime() - f.getDeparture().getTime();
                 duration = duration /1000/60;
                 System.out.println("Flight Duration:     " + duration + " minutes");

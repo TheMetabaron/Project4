@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * Class Flight Comparator builds a comparator that compares two Flight Objects. This is used
- * to lexicographically order the Flight Objects wihtin an Airline object for Porject 3.
+ * to lexicographically order the Flight Objects within an Airline object for Project 3.
  * @author Scott Jones
  */
 public class FlightComparator implements Comparator<AbstractFlight> {
